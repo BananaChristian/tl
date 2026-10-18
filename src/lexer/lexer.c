@@ -3,6 +3,7 @@
 #include "strv.h"
 #include "token.h"
 #include "vec.h"
+#include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -25,31 +26,59 @@ static void advance(Lexer *lexer) {
   }
 }
 
-static void skip_whitespace(Lexer *lexer) {}
+static void skip_whitespace(Lexer *lexer) {
+  while (isspace(current_char(lexer))) {
+    advance(lexer);
+  }
+}
+
+static void skip_comments(Lexer *lexer) {
+  // If u see // then yep thats a comment
+  if (current_char(lexer) == '/' && peek_char(lexer) == '/') {
+    while (1) {
+      advance(lexer);
+      bool end_comment =
+          current_char(lexer) == '\n' || current_char(lexer) == '\0';
+      if (end_comment) {
+        break;
+      }
+    }
+  }
+}
 
 static Token next_token(Lexer *lexer) {
-  // skip_whitespace(lexer);
+  skip_whitespace(lexer);
+  skip_comments(lexer);
   char c = current_char(lexer);
   size_t start = lexer->pos;
 
   switch (c) {
   case '+': {
-    size_t end = lexer->pos;
     advance(lexer); // Consume the +
-    return token_new(TOK_PLUS, "+", span_new(start, end));
+    return token_new(TOK_PLUS, "+", span_new(start, lexer->pos));
+  }
+  case '-': {
+    advance(lexer);
+    return token_new(TOK_MINUS, "-", span_new(start, lexer->pos));
+  }
+  case '/': {
+    advance(lexer);
+    return token_new(TOK_SLASH, "/", span_new(start, lexer->pos));
+  }
+  case ':': {
+    advance(lexer);
+    return token_new(TOK_COLON, ":", span_new(start, lexer->pos));
   }
   case '\0': {
-    size_t end = lexer->pos;
     advance(lexer);
-    return token_new(TOK_END, "\0", span_new(start, end));
+    return token_new(TOK_END, "\0", span_new(start, lexer->pos));
   }
   default: {
-    size_t end = lexer->pos;
     advance(lexer);
     return (Token){
         .token_type = TOK_ILLEGAL,
         .lexeme = strv_from_pos(start, lexer->src.data),
-        .span = span_new(start, end),
+        .span = span_new(start, lexer->pos),
     };
   }
   }

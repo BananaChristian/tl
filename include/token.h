@@ -9,6 +9,8 @@ typedef enum {
   TOK_BIND,
   TOK_PLUS,
   TOK_MINUS,
+  TOK_SLASH,
+  TOK_COLON,
   TOK_ILLEGAL,
   TOK_END,
 } TType;

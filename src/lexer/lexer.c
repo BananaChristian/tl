@@ -78,54 +78,49 @@ static Token next_token(Lexer *lexer) {
   switch (c) {
   case '+': {
     advance(lexer); // Consume the +
-    return token_new(TOK_PLUS, "+", span_new(start, lexer->pos));
+    return token_new(TOK_PLUS, lexer->src.data, span_new(start, lexer->pos));
   }
   case '-': {
     advance(lexer);
     if (current_char(lexer) == '>') {
-      return token_new(TOK_ARROW, "->", span_new(start, lexer->pos));
+      return token_new(TOK_ARROW, lexer->src.data, span_new(start, lexer->pos));
     }
-    return token_new(TOK_MINUS, "-", span_new(start, lexer->pos));
+    return token_new(TOK_MINUS, lexer->src.data, span_new(start, lexer->pos));
   }
   case '/': {
     advance(lexer);
-    return token_new(TOK_SLASH, "/", span_new(start, lexer->pos));
+    return token_new(TOK_SLASH, lexer->src.data, span_new(start, lexer->pos));
   }
   case ':': {
     advance(lexer);
     if (current_char(lexer) == '=') {
       advance(lexer);
-      return token_new(TOK_BIND, ":=", span_new(start, lexer->pos));
+      return token_new(TOK_BIND, lexer->src.data, span_new(start, lexer->pos));
     }
-    return token_new(TOK_COLON, ":", span_new(start, lexer->pos));
+    return token_new(TOK_COLON, lexer->src.data, span_new(start, lexer->pos));
   }
   case '{': {
     advance(lexer);
-    return token_new(TOK_LBRACE, "{", span_new(start, lexer->pos));
+    return token_new(TOK_LBRACE, lexer->src.data, span_new(start, lexer->pos));
   }
   case '}': {
     advance(lexer);
-    return token_new(TOK_RBRACE, "}", span_new(start, lexer->pos));
+    return token_new(TOK_RBRACE, lexer->src.data, span_new(start, lexer->pos));
   }
   case '(': {
     advance(lexer);
-    return token_new(TOK_LPAREN, "(", span_new(start, lexer->pos));
+    return token_new(TOK_LPAREN, lexer->src.data, span_new(start, lexer->pos));
   }
   case ')': {
     advance(lexer);
-    return token_new(TOK_RPAREN, ")", span_new(start, lexer->pos));
+    return token_new(TOK_RPAREN, lexer->src.data, span_new(start, lexer->pos));
   }
   case '\0': {
-    advance(lexer);
-    return token_new(TOK_END, "\0", span_new(start, lexer->pos));
+    return token_new(TOK_END, lexer->src.data, span_new(start, lexer->pos));
   }
   default: {
     advance(lexer);
-    return (Token){
-        .token_type = TOK_ILLEGAL,
-        .lexeme = strv_from_pos(start, lexer->src.data),
-        .span = span_new(start, lexer->pos),
-    };
+    return token_new(TOK_ILLEGAL, lexer->src.data, span_new(start, lexer->pos));
   }
   }
 }

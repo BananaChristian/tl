@@ -26,14 +26,7 @@ static void advance(Lexer *lexer) {
   }
 }
 
-static void skip_whitespace(Lexer *lexer) {
-  while (isspace(current_char(lexer))) {
-    advance(lexer);
-  }
-}
-
 static void skip_comments(Lexer *lexer) {
-  // If u see // then yep thats a comment
   if (current_char(lexer) == '/' && peek_char(lexer) == '/') {
     while (1) {
       advance(lexer);
@@ -46,11 +39,41 @@ static void skip_comments(Lexer *lexer) {
   }
 }
 
+static void skip_whitespace(Lexer *lexer) {
+  while (isspace(current_char(lexer))) {
+    advance(lexer);
+  }
+}
+
+static void skip_whitespace_and_comments(Lexer *lexer) {
+  while (1) {
+    skip_whitespace(lexer);
+    if (current_char(lexer) == '/' && peek_char(lexer) == '/') {
+      skip_comments(lexer);
+      continue;
+    }
+    break;
+  }
+}
+
+static Token read_identifier(Lexer *lexer) {
+  size_t start = lexer->pos;
+  while (isalpha(current_char(lexer)) || current_char(lexer) == '_') {
+    advance(lexer);
+  }
+  return (Token){.token_type = TOK_IDENT,
+                 .lexeme = strv_from_range(start, lexer->pos, lexer->src.data),
+                 .span = span_new(start, lexer->pos)};
+}
+
 static Token next_token(Lexer *lexer) {
-  skip_whitespace(lexer);
-  skip_comments(lexer);
+  skip_whitespace_and_comments(lexer);
   char c = current_char(lexer);
   size_t start = lexer->pos;
+
+  if (isalnum(c) || c == '_') {
+    return read_identifier(lexer);
+  }
 
   switch (c) {
   case '+': {
@@ -59,6 +82,9 @@ static Token next_token(Lexer *lexer) {
   }
   case '-': {
     advance(lexer);
+    if (current_char(lexer) == '>') {
+      return token_new(TOK_ARROW, "->", span_new(start, lexer->pos));
+    }
     return token_new(TOK_MINUS, "-", span_new(start, lexer->pos));
   }
   case '/': {
@@ -67,7 +93,27 @@ static Token next_token(Lexer *lexer) {
   }
   case ':': {
     advance(lexer);
+    if (current_char(lexer) == '=') {
+      advance(lexer);
+      return token_new(TOK_BIND, ":=", span_new(start, lexer->pos));
+    }
     return token_new(TOK_COLON, ":", span_new(start, lexer->pos));
+  }
+  case '{': {
+    advance(lexer);
+    return token_new(TOK_LBRACE, "{", span_new(start, lexer->pos));
+  }
+  case '}': {
+    advance(lexer);
+    return token_new(TOK_RBRACE, "}", span_new(start, lexer->pos));
+  }
+  case '(': {
+    advance(lexer);
+    return token_new(TOK_LPAREN, "(", span_new(start, lexer->pos));
+  }
+  case ')': {
+    advance(lexer);
+    return token_new(TOK_RPAREN, ")", span_new(start, lexer->pos));
   }
   case '\0': {
     advance(lexer);

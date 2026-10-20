@@ -1,5 +1,6 @@
 #include "cli.h"
 #include "lexer.h"
+#include "token.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,8 +63,11 @@ int main(int argc, char *argv[]) {
   Lexer lexer = {0};
   lexer_init(&lexer, source_file);
   Vec tokens = lexer_tokenize(&lexer);
-
-  printf("The vector has length: %zu\n", tokens.length);
+  for (size_t i = 0; i < tokens.length; i++) {
+    Token *token_data = (Token *)tokens.data;
+    Token token = token_data[i];
+    print_token(token);
+  }
 
   free(source_file);
   return 0;

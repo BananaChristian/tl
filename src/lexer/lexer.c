@@ -66,13 +66,27 @@ static Token read_identifier(Lexer *lexer) {
                  .span = span_new(start, lexer->pos)};
 }
 
+static Token read_number(Lexer *lexer) {
+  size_t start = lexer->pos;
+  while (isdigit(current_char(lexer))) {
+    advance(lexer);
+  }
+  return (Token){.token_type = TOK_INTEGER,
+                 .lexeme = strv_from_range(start, lexer->pos, lexer->src.data),
+                 .span = span_new(start, lexer->pos)};
+}
+
 static Token next_token(Lexer *lexer) {
   skip_whitespace_and_comments(lexer);
   char c = current_char(lexer);
   size_t start = lexer->pos;
 
-  if (isalnum(c) || c == '_') {
+  if (isalpha(c) || c == '_') {
     return read_identifier(lexer);
+  }
+
+  if (isdigit(c)) {
+    return read_number(lexer);
   }
 
   switch (c) {

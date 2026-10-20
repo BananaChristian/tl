@@ -17,6 +17,7 @@ typedef enum {
   TOK_RBRACE, //}
   TOK_ARROW,  //->
   TOK_IDENT,
+  TOK_INTEGER,
   TOK_ILLEGAL,
   TOK_END,
 } TType;
@@ -29,5 +30,6 @@ typedef struct {
 
 Token token_new(TType token_type, const char *lexeme, Span span);
 TType get_token_type(Token *token);
+void print_token(Token token);
 
 #endif // !TOKEN_H

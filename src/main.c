@@ -1,5 +1,6 @@
 #include "cli.h"
 #include "lexer.h"
+#include "parser.h"
 #include "token.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -68,6 +69,8 @@ int main(int argc, char *argv[]) {
     Token token = token_data[i];
     print_token(token);
   }
+  Parser parser = {0};
+  parser_init(&parser, tokens);
 
   free(source_file);
   return 0;

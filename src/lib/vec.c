@@ -45,3 +45,14 @@ void vec_append(Vec *vec, void *element) {
     vec_append_unchecked(vec, element);
   }
 }
+
+void *vec_access_at(Vec *vec, size_t index) {
+  if (index >= vec->length) {
+    fprintf(stderr, "Index %zu\n is out of bounds for length %zu\n", index,
+            vec->length);
+    return NULL;
+  }
+
+  char *element_ptr = (char *)(vec->data) + (index * vec->element_size);
+  return (void *)element_ptr;
+}

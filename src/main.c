@@ -1,3 +1,4 @@
+#include "arena.h"
 #include "cli.h"
 #include "lexer.h"
 #include "parser.h"
@@ -72,6 +73,11 @@ int main(int argc, char *argv[]) {
   Parser parser = {0};
   parser_init(&parser, tokens);
 
+  // Test the arena DSA
+  Arena arena = {0};
+  arena_init(&arena);
+
+  arena_destroy(&arena);
   free(source_file);
   return 0;
 }

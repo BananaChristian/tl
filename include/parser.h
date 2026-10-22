@@ -13,5 +13,7 @@ typedef struct {
 void parser_init(Parser *parser, Vec tokens);
 void parser_advance(Parser *parser);
 Token current_token(Parser *parser);
+void expect_token(Parser *parser, TType expected_token);
+Vec parse(Parser *parser);
 
 #endif // !PARSER_H
